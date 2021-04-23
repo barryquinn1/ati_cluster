@@ -27,7 +27,7 @@ library(xaringanExtra)
 use_tile_view()
 use_webcam()
 use_panelset()
-use_logo(image_url = "https://github.com/barryquinn1/FMLmaterial/blob/c06eec822b77fc1c2ccf2948515260fbadcea29e/slides/img/redlogo.png")
+xaringanExtra::use_logo(image_url = "https://github.com/barryquinn1/quinnference_website/blob/5e3ebd65161393001c204a0edf2c1d26f7c4e38e/img/redlogo.png")
 library(RefManageR)
 library(tidyverse)
 library(fpc)
@@ -55,7 +55,7 @@ layout: true
 ---
 name: ATL-title
 class: inverse,left, middle
-background-image: url(https://github.com/barryquinn1/FMLmaterial/blob/c06eec822b77fc1c2ccf2948515260fbadcea29e/slides/img/title-slide-img.png)
+background-image: url(https://github.com/barryquinn1/quinnference_website/blob/5e3ebd65161393001c204a0edf2c1d26f7c4e38e/img/title-slide-img.png)
 background-size: cover
 
 .salt[FIN7030]
@@ -389,7 +389,7 @@ f2c3 %>% ggplot(aes(x=V2,y=V3)) + geom_point(colour='pink')
 - On 2-D, this is an easy question for a human.
 ]
 .pull-right[
-<iframe src="~/Dropbox/Teaching/FinancialMachineLearning/FML/slides/img/p.html" width="100%" height="400" id="igraph" scrolling="no" seamless="seamless" frameBorder="0"> </iframe>
+<iframe src="https://github.com/barryquinn1/quinnference_website/blob/5e3ebd65161393001c204a0edf2c1d26f7c4e38e/img/p.html" width="100%" height="400" id="igraph" scrolling="no" seamless="seamless" frameBorder="0"> </iframe>
 .fatline[On higher dimensions, machines are more likely to win]
 ]
 ---
