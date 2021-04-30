@@ -4,7 +4,7 @@
     <title>Algorithmic trading and investment</title>
     <meta charset="utf-8" />
     <meta name="author" content="Barry Quinn" />
-    <meta name="date" content="2021-04-23" />
+    <meta name="date" content="2021-04-30" />
     <link href="libs/remark-css/default.css" rel="stylesheet" />
     <link href="libs/tile-view/tile-view.css" rel="stylesheet" />
     <script src="libs/tile-view/tile-view.js"></script>
@@ -18,6 +18,14 @@
   </head>
   <body>
     <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Algorithmic trading and investment
+## FIN7030
+### Barry Quinn
+### 2021-04-30
+
+---
 
 
 
@@ -25,21 +33,6 @@
 layout: true
   
 &lt;div class="my-footer"&gt;&lt;span&gt;quinference.com&lt;/span&gt;&lt;/div&gt;
-
----
-name: ATL-title
-class: inverse,left, middle
-background-image: url(https://github.com/barryquinn1/quinnference_website/blob/5e3ebd65161393001c204a0edf2c1d26f7c4e38e/img/title-slide-img.png)
-background-size: cover
-
-.salt[FIN7030]
-
-# Algorithmic Trading and Investing 
-
-# .fancy[Lecture 5: Clustering]
-
-.large[Barry Quinn PhD CStat | Queen's Management School | 2021-04-23]
-
 
 ---
 class:middle
@@ -88,7 +81,7 @@ clusters) using the features, where .fancy[.red[intragroup]] similarities are ma
 - .blockquote[Clustering problems appear naturally in finance, at every step of the investment process.] 
 ]
 .pull-right[
-&lt;img src="~/Dropbox/Teaching/FinancialMachineLearning/FML/slides/img/agglom.png" width="80%"&gt;
+&lt;img src="img/agglom.png" width="80%"&gt;
 ]
 
 
@@ -124,7 +117,7 @@ the greater the weight) or dissimilarity (the more dissimilar, the smaller the w
 
 ---
 class: middle
-background-image: url(~/Dropbox/Teaching/FinancialMachineLearning/FML/slides/img/fifa20.png)
+background-image: url(img/fifa20.png)
 background-size: contain
 ---
 class:middle
@@ -377,7 +370,7 @@ f2c3 %&gt;% ggplot(aes(x=V2,y=V3)) + geom_point(colour='pink')
 - On 2-D, this is an easy question for a human.
 ]
 .pull-right[
-&lt;iframe src="https://github.com/barryquinn1/quinnference_website/blob/5e3ebd65161393001c204a0edf2c1d26f7c4e38e/img/p.html" width="100%" height="400" id="igraph" scrolling="no" seamless="seamless" frameBorder="0"&gt; &lt;/iframe&gt;
+&lt;iframe src="img/3D_clusters.html" width="100%" height="400" id="igraph" scrolling="no" seamless="seamless" frameBorder="0"&gt; &lt;/iframe&gt;
 .fatline[On higher dimensions, machines are more likely to win]
 ]
 ---
@@ -461,13 +454,6 @@ fviz_nbclust(f3c3, kmeans, method = "wss")
 fviz_nbclust(f3c3, kmeans, method = "gap_stat")
 ```
 
-```
-## Clustering k = 1,2,..., K.max (= 10): .. done
-## Bootstrapping, b = 1,2,..., B (= 100)  [one "." per sample]:
-## .................................................. 50 
-## .................................................. 100
-```
-
 ![](index_files/figure-html/unnamed-chunk-6-1.png)&lt;!-- --&gt;
 ]
 .panel[.panel-name[Silhouette]
@@ -513,13 +499,13 @@ factors %&gt;% glimpse()
 ```
 ## Rows: 7,389
 ## Columns: 7
-## $ date &lt;date&gt; 1988-10-03, 1988-10-04,…
-## $ rm   &lt;dbl&gt; -0.0108511, 0.0021296, 0…
-## $ rf   &lt;dbl&gt; 0.0004220, 0.0004233, 0.…
-## $ rmrf &lt;dbl&gt; -0.01127306, 0.00170627,…
-## $ smb  &lt;dbl&gt; 0.00525148, -0.00085576,…
-## $ hml  &lt;dbl&gt; 0.00068780, -0.00139754,…
-## $ umd  &lt;dbl&gt; -0.00508378, 0.00121570,…
+## $ date &lt;date&gt; 1988-10-03, 1988-10-04, 1988-10-05, 1988-10-06, 1988-10-07, 1988…
+## $ rm   &lt;dbl&gt; -0.0108511, 0.0021296, 0.0103932, 0.0063450, 0.0036179, 0.0001750…
+## $ rf   &lt;dbl&gt; 0.0004220, 0.0004233, 0.0004251, 0.0004254, 0.0004254, 0.0004223,…
+## $ rmrf &lt;dbl&gt; -0.01127306, 0.00170627, 0.00996818, 0.00591960, 0.00319251, -0.0…
+## $ smb  &lt;dbl&gt; 0.00525148, -0.00085576, -0.00446347, -0.00249881, 0.00030991, 0.…
+## $ hml  &lt;dbl&gt; 0.00068780, -0.00139754, 0.00140606, 0.00250139, -0.00277563, -0.…
+## $ umd  &lt;dbl&gt; -0.00508378, 0.00121570, -0.00373774, -0.00266541, 0.00224610, 0.…
 ```
 ]
 .pull-left[
@@ -612,29 +598,19 @@ class: middle
 class:middle
 # References
 
-Lopez de Prado, M. (2016).
-"Building Diversified Portfolios
-that Outperform Out-of-Sample".
-In: _Journal of Portfolio
-Management_ 42.4, pp. 59-69.
+Lopez de Prado, M. (2016). "Building Diversified Portfolios that
+Outperform Out-of-Sample". In: _Journal of Portfolio Management_ 42.4,
+pp. 59-69.
 
-López de Prado, M. (2020).
-"Machine Learning for Asset
-Managers". In: _Elements in
-Quantitative Finance_. Cambridge
-University Press.
+López de Prado, M. (2020). "Machine Learning for Asset Managers". In:
+_Elements in Quantitative Finance_. Cambridge University Press.
 
-Lopez de Prado, M. and M. J. Lewis
-(2018). "Detection of False
-Investment Strategies Using
-Unsupervised Learning Methods".
+Lopez de Prado, M. and M. J. Lewis (2018). "Detection of False
+Investment Strategies Using Unsupervised Learning Methods".
 
-Tibshirani, R., G. Walther, and T.
-Hastie (2001). "Estimating the
-number of clusters in a data set
-via the gap statistic". En. In:
-_J. R. Stat. Soc. Series B Stat.
-Methodol._ 63.2, pp. 411-423.
+Tibshirani, R., G. Walther, and T. Hastie (2001). "Estimating the
+number of clusters in a data set via the gap statistic". En. In: _J. R.
+Stat. Soc. Series B Stat. Methodol._ 63.2, pp. 411-423.
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
