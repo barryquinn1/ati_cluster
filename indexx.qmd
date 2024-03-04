@@ -1,0 +1,30 @@
+---
+title: "Clustering"
+format: html
+---
+
+## learning outcomes {.fat}
+
+– Partitional clustering 
+
+– Hierarchical clustering
+
+## What is clustering
+
+- Clustering is a fundamental problem in machine learning and data mining that involves 
+grouping objects into clusters based on their similarities and differences.
+- The goal of clustering is to identify patterns or structures in the data that are not  obvious by looking at individual objects.
+
+## Clustering in Finance
+- Clustering problems appear naturally in various fields, including finance, where they  can be used to identify groups of customers with similar investment preferences or  behaviors, or to segment financial markets based on their characteristics.
+
+- In finance, clustering can be applied at every step of the investment process, from  analysing customer data to identifying profitable trading opportunities.
+
+## Clustering in finance {.acidinline .smaller}
+- **Customer segmentation:** Identify groups of customers with similar investment preferences or behaviors and tailor services and products to meet their needs more 
+effectively.
+- **Portfolio optimization:** Identify profitable trading opportunities by clustering asset based on their risk-return profiles.
+- **Risk management:**Identify patterns in market data that may indicate increased risk of a market crash or other significant events, enabling investors to manage their risk  exposure more effectively.
+- **Fraud detection:** Identify unusual patterns in transaction data that may indicate fraudulent activity and detect it more effectively.
+- **Asset allocation:** Cluster assets based on their expected returns and risks to 
+optimize portfolio allocation and make more informed investment decisions.
