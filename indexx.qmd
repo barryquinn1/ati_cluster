@@ -3,22 +3,25 @@ title: "Clustering in Finance"
 subtitle: "A primer on partitional and hierarchical clustering algorithms, with applications to financial datasets"
 author: "Barry Quinn <br> Digital Dave"
 date: today
+embed-resources: true
 format:
   revealjs:
     include-in-header:
       - https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css
     theme: default
     transition: slide
+    scollable: true
     slide-number: true
-    chalkboard: true
-    preview-links: auto
-    logo: "img/redlogo.png"
+    logo: img/qbslogo.png
     css: mycssblend.css
     height: 900
     width: 1600
     html-math-method: mathml
 execute: 
-  echo: false
+  echo: true
+editor: 
+  markdown: 
+    wrap: 72
 ---
 
 ```{r setup, include=FALSE}
@@ -35,7 +38,7 @@ library(ggdendro)
 
 ## Packages used
 
-```
+```         
 library(tidyverse)
 library(fpc)
 library(factoextra)
@@ -43,58 +46,90 @@ library(fungible)
 library(ggdendro)
 ```
 
-## Introduction {.small}
+## Introduction
 
-- Many problems in finance require the clustering of variables or observations:
-    1. Factor investing, relative value analysis (e.g., forming quality minus junk portfolios)
-    2. Risk management, portfolio construction (e.g., deriving the efficient frontier)
-    3. Dimensionality reduction (e.g., decomposing bond return drivers)
+-   Many problems in finance require the clustering of variables or
+    observations:
+    1.  Factor investing, relative value analysis (e.g., forming quality
+        minus junk portfolios)
+    2.  Risk management, portfolio construction (e.g., deriving the
+        efficient frontier)
+    3.  Dimensionality reduction (e.g., decomposing bond return drivers)
     4.  Modelling of multicollinear systems (e.g., computing p-values)
-- Despite its usefulness, clustering is almost never taught in Econometrics courses 
-- None of the major Econometrics textbooks, and only a handful of academic journal articles, discuss the clustering of financial datasets
+-   Despite its usefulness, clustering is almost never taught in
+    Econometrics courses
+-   None of the major Econometrics textbooks, and only a handful of
+    academic journal articles, discuss the clustering of financial
+    datasets
 
 ## Learning outcomes
 
-- Partitional clustering
-- Hierarchical clustering
-- Understand that different features and/or similarity metrics will lead to different clusterings
-- Understand it is key to formulate the problem in a way that results have economic meaning and interpretability
+-   Partitional clustering
+-   Hierarchical clustering
+-   Understand that different features and/or similarity metrics will
+    lead to different clusterings
+-   Understand it is key to formulate the problem in a way that results
+    have economic meaning and interpretability
 
 ## What is Clustering? {.small}
 
-:::: {.columns}
-
+::: columns
 ::: {.column width="50%"}
-- A clustering problem consists of a set of objects and a set of features associated with those objects. 
-- The goal is to separate the objects into groups (called clusters) using the features, where <span class="fancy"><span class="red">intragroup</span></span> similarities are maximized, and <span class="fancy"><span class="red">intergroup similarities</span></span> are minimized.
-- It is a form of unsupervised learning, because we do not provide examples to assist the algorithm in solving this task.
-- <span class="blockquote">Clustering problems appear naturally in finance, at every step of the investment process.</span>
+-   A clustering problem consists of a set of objects and a set of
+    features associated with those objects.
+-   The goal is to separate the objects into groups (called clusters)
+    using the features, where [intragroup]{.red} similarities are
+    maximized, and [intergroup similarities]{.red} are minimized.
+-   It is a form of unsupervised learning, because we do not provide
+    examples to assist the algorithm in solving this task.
+-   [Clustering problems appear naturally in finance, at every step of
+    the investment process.]{.blockquote}
 :::
 
 ::: {.column width="50%"}
 ![](img/agglom.png)
 :::
-
-::::
+:::
 
 ## Why cluster in finance? {.small}
 
-1. Quantitative analysts may look for historical analogues to current events, a task that involves developing a numerical taxonomy of events.
-2. Portfolio managers often cluster securities with respect to a variety of features, to derive relative values among peers. 
-3. Risk managers are keen to avoid the concentration of risks in securities that share common traits. 
-4. Traders wish to understand flows affecting a set of securities, to determine whether a rally or sell-off is idiosyncratic to a particular security, or affects a category shared by a multiplicity of securities. 
+1.  Quantitative analysts may look for historical analogues to current
+    events, a task that involves developing a numerical taxonomy of
+    events.
+2.  Portfolio managers often cluster securities with respect to a
+    variety of features, to derive relative values among peers.
+3.  Risk managers are keen to avoid the concentration of risks in
+    securities that share common traits.
+4.  Traders wish to understand flows affecting a set of securities, to
+    determine whether a rally or sell-off is idiosyncratic to a
+    particular security, or affects a category shared by a multiplicity
+    of securities.
 
-<span class="blockquote">In tackling these problems, we use the notions of distance we studied in previous weeks</span>
+[In tackling these problems, we use the notions of distance we studied
+in previous weeks]{.blockquote}
 
 ## Proximity matrix {.small}
 
-- Consider a data matrix $X$, of order $N \times F$, where $N$ is the number of objects and $F$ is the number of features.
-- We use the $F$ features to compute the proximity between the N objects, as represented by an $N \times N$ matrix. 
-- The proximity measure can indicate either similarity (e.g., correlation, mutual information) or dissimilarity (e.g., a distance metric). 
-- It is convenient but not strictly necessary that dissimilarity measures satisfy the conditions of a metric: nonnegativity, symmetry and triangle inequality
-- The proximity matrix can be represented as an undirected graph where the weights are a function of the similarity (the more similar, the greater the weight) or dissimilarity (the more dissimilar, the smaller the weight).
-- Then the clustering problem is equivalent to breaking the graph into connected components (disjoint connected subgraphs), one for each cluster. 
-- When forming the proximity matrix, it is a good idea to standardize the input data, to prevent that one feature's scale dominates over the rest.
+-   Consider a data matrix $X$, of order $N \times F$, where $N$ is the
+    number of objects and $F$ is the number of features.
+-   We use the $F$ features to compute the proximity between the N
+    objects, as represented by an $N \times N$ matrix.
+-   The proximity measure can indicate either similarity (e.g.,
+    correlation, mutual information) or dissimilarity (e.g., a distance
+    metric).
+-   It is convenient but not strictly necessary that dissimilarity
+    measures satisfy the conditions of a metric: nonnegativity, symmetry
+    and triangle inequality
+-   The proximity matrix can be represented as an undirected graph where
+    the weights are a function of the similarity (the more similar, the
+    greater the weight) or dissimilarity (the more dissimilar, the
+    smaller the weight).
+-   Then the clustering problem is equivalent to breaking the graph into
+    connected components (disjoint connected subgraphs), one for each
+    cluster.
+-   When forming the proximity matrix, it is a good idea to standardize
+    the input data, to prevent that one feature's scale dominates over
+    the rest.
 
 ## Cluster FIFA 20 players {.small}
 
@@ -102,31 +137,48 @@ library(ggdendro)
 
 ## Clustering algorithms {.small}
 
-<span class="blockquote">There are two main classes of clustering algorithms: partitional and hierarchical</span>
+[There are two main classes of clustering algorithms: partitional and
+hierarchical]{.blockquote}
 
-- Partitional techniques create a one-level (un-nested) partitioning of the objects (each object belongs to one cluster, and to one cluster only) simultaneously.
-- Hierarchical techniques produce a nested sequence of partitions, with a single, all-inclusive cluster at the top and singleton clusters of individual points at the bottom. Hierarchical clustering algorithms can be divisive (top-down) or agglomerative (bottom-up). 
+-   Partitional techniques create a one-level (un-nested) partitioning
+    of the objects (each object belongs to one cluster, and to one
+    cluster only) simultaneously.
+-   Hierarchical techniques produce a nested sequence of partitions,
+    with a single, all-inclusive cluster at the top and singleton
+    clusters of individual points at the bottom. Hierarchical clustering
+    algorithms can be divisive (top-down) or agglomerative (bottom-up).
 
 ## A partitional algorithm: K-means {.small}
 
-- K-Means is a vector quantization model.
+-   K-Means is a vector quantization model.
 
-<span class="blockquote">### Statistical thinking {{< fa brain >}}
-It attempts to split the samples (rows) of $X$ into a predetermined number of clusters $K$</span>.
+### Statistical thinking {{< fa brain >}}
 
-<span class="blockquote">### Algorithmic thinking {{< fa brain >}} {{< fa plus >}} {{< fa brain >}}
-- <span class="saltinline">Step 1: Initialize a random set of K centroids</span>
-- <span class="fatinline">Step 2: Assign each sample to one cluster such that the within-cluster variance is minimised</span>
-- <span class="acidinline">Step 3: Update K centroids based on the clusters from Step 2</span>
-- <span class="heatinline">Step 4: Repeat steps 2 and 3 until convergence</span>]
+It attempts to split the samples (rows) of $X$ into a predetermined
+number of clusters $K$
 
+### Algorithmic thinking {{< fa brain >}} {{< fa plus >}} {{< fa brain >}}
+
+-   [Step 1: Initialize a random set of K centroids]{.saltinline}
+
+-   [Step 2: Assign each sample to one cluster such that the
+    within-cluster variance is minimised]{.fatinline}
+
+-   [Step 3: Update K centroids based on the clusters from Step
+    2]{.acidinline}
+
+-   [Step 4: Repeat steps 2 and 3 until convergence]{.heatinline}\]
+
+::: panel-tabset
+## A
+
+## B
+:::
 
 ## A partitional algorithm: K-mean {.small}
 
-:::: {.panelset}
-
-::: {.panel}
-[Experiment set up]{.panel-name}
+::: panel-tabset
+## Experiment set up
 
 ```{r}
 fungible::monte(seed = 123, nvar = 2, nclus = 3, clus.size = c(1000, 1000, 1000), eta2 = c(0.70, 0.30)) -> dat
@@ -134,17 +186,14 @@ dat1 <- as_tibble(dat$data)
 kmeansObj <- kmeans(dat1, centers = 3)
 ```
 
-- The [`fungible::monte()`](https://rdrr.io/cran/fungible/man/monte.html) simulates a set of clusters which have some proportion of total variance is due to their mixture. 
-- This is typical of a financial data set, where the common market component will affect all clusters. 
-:::
+-   The [`fungible::monte()`](https://rdrr.io/cran/fungible/man/monte.html) simulates a set of clusters which have some proportion of total variance is due to their mixture.
+-   This is typical of a financial data set, where the common market component will affect all clusters.
 
-::: {.panel}
-[Clustering results]{.panel-name}
+## Clustering results
 
-:::: {.columns}
-
+::: columns
 ::: {.column width="50%"}
-- The algorithm took `r kmeansObj$iter` before finding a solution
+-   The algorithm took `r kmeansObj$iter` before finding a solution
 :::
 
 ::: {.column width="50%"}
@@ -152,65 +201,75 @@ kmeansObj <- kmeans(dat1, centers = 3)
 factoextra::fviz_cluster(kmeansObj, data = dat1)
 ```
 :::
-
-::::
+:::
 
 :::
 
-::::
-
 ## A few considerations {.small}
 
-* K-Means assumes that the clusters are convex, isotropic, and with similar variance
-* Features should be standardized prior to clustering
-* Other algorithms may perform better when clusters are elongated or irregular
-* Within-cluster variance is not a normalized metric
-* Curse of dimensionality: When $X$ has many columns, variances are inflated, and outcomes may be biased. 
-* One solution is to apply a dimensionality reduction technique (e.g., PCA) prior to clustering
-* K-Means will always converge, however the outcome may be a local minimum
-* One solution is to run multiple instances in parallel, with different seed centroid
+-   K-Means assumes that the clusters are convex, isotropic, and with
+    similar variance
+-   Features should be standardized prior to clustering
+-   Other algorithms may perform better when clusters are elongated or
+    irregular
+-   Within-cluster variance is not a normalized metric
+-   Curse of dimensionality: When $X$ has many columns, variances are
+    inflated, and outcomes may be biased.
+-   One solution is to apply a dimensionality reduction technique (e.g.,
+    PCA) prior to clustering
+-   K-Means will always converge, however the outcome may be a local
+    minimum
+-   One solution is to run multiple instances in parallel, with
+    different seed centroid
 
 ## A Hierarchical Algorithm: Agglomerative Clustering {.small}
 
-<span class="blockquote">### Algorithmic thinking {{<fa brain>}} {{<fa plus>}} {{<fa brain>}}
-- <span class="saltinline">Step 1: Apply a distance metric to $X$</span>
-- <span class="fatinline">Step 2: Combine into a cluster the pair with lowest distance</span>
-<span class="small">The pair can be composed of two items, two clusters, or one item and a cluster</span>
-- <span class="acidinline">Step 3: Reduce the distance matrix</span>
-<span class="small">- Remove the 2 rows and columns associated with the pair
-- Apply a linkage criterion to determine the distance between the new cluster and the rest of objects, e.g.:
-- [Single linkage](https://en.wikipedia.org/wiki/Single-linkage_clustering): minimum distance to any object in the pair
-- [Complete linkage](https://en.wikipedia.org/wiki/Complete-linkage_clustering): maximum distance to any object in the pair</span>
-- <span class="heatinline">Step 4: Repeat steps 2 and 3 until the distance matrix has been reduced to only one object</span>
+### Algorithmic thinking {{<fa brain>}} {{<fa plus>}} {{<fa brain>}} 
+- Step 1: Apply a distance metric to $X$
+- Step 2: Combine into a cluster the pair with lowest distance.  The pair can be composed of two items, two clusters, or one item and a cluster] 
+- Step 3: Reduce the distance matrix
+  - Remove the 2 rows and columns associated with the pair 
+  - Apply a linkage criterion to determine the distance between the new cluster and the rest of objects, e.g.: 
+  -[Single linkage](https://en.wikipedia.org/wiki/Single-linkage_clustering): minimum distance to any object in the pair 
+  - [Complete linkage](https://en.wikipedia.org/wiki/Complete-linkage_clustering): maximum distance to any object in the pair]{.small} 
+- Step 4: Repeat steps 2 and 3 until the distance matrix has been reduced to only one object
 
 ## Dendrogram {.small}
 
-- A dendrogram is a tree graph that displays the hierarchical composition of the clusters
-- The y-axis indicates the distance between the two objects that form a new cluster
-- A linkage matrix characterizes a dendrogram
-  - For N items, a linkage matrix has N-1 rows (one row per cluster)
-  - <span class="heatinlne">Three columns:</span>
-    - Integer identifying object 1
-    - Integer identifying object 2
-    - Distance between objects 1 and 2 (based on linkage criterion)
-- pretty dendrograms = `ggdendro` package
+-   A dendrogram is a tree graph that displays the hierarchical
+    composition of the clusters
+-   The y-axis indicates the distance between the two objects that form
+    a new cluster
+-   A linkage matrix characterizes a dendrogram
+    -   For N items, a linkage matrix has N-1 rows (one row per cluster)
+    -   [Three columns:]{.heatinlne}
+        -   Integer identifying object 1
+        -   Integer identifying object 2
+        -   Distance between objects 1 and 2 (based on linkage
+            criterion)
+-   pretty dendrograms = `ggdendro` package
 
 ## A few considerations {{<fa brain>}} {.small}
 
-- Hierarchical algorithms can handle clusters that are non-convex, anisotropic, with unequal variance
-  - This includes clusters within clusters
-- Hierarchical algorithms allow connectivity constraints
-  - Connectivity constraints cluster together only adjacent points. This links together points even if the centroid is not part of the cluster
-- However, hierarchical algorithms may not handle properly elongated blobs
-  - One solution is to orthogonalize the features (e.g., PCA without dimensionality reduction) prior to clustering
-- The appropriate linkage method can be chosen via cross-validation, or [cophenetic correlation](https://en.wikipedia.org/wiki/Cophenetic_correlation)
+-   Hierarchical algorithms can handle clusters that are non-convex,
+    anisotropic, with unequal variance
+    -   This includes clusters within clusters
+-   Hierarchical algorithms allow connectivity constraints
+    -   Connectivity constraints cluster together only adjacent points.
+        This links together points even if the centroid is not part of
+        the cluster
+-   However, hierarchical algorithms may not handle properly elongated
+    blobs
+    -   One solution is to orthogonalize the features (e.g., PCA without
+        dimensionality reduction) prior to clustering
+-   The appropriate linkage method can be chosen via cross-validation,
+    or [cophenetic
+    correlation](https://en.wikipedia.org/wiki/Cophenetic_correlation)
 
 ## Example of hierarchical clustering {.small}
 
-:::: {.panelset}
-
-::: {.panel}
-[Simulate three clusters]{.panel-name}
+::: panel-tabset
+## Simulate three clusters
 
 ```{r}
 set.seed(12345)
@@ -224,11 +283,9 @@ dat %>%
   geom_label(aes(label = obs)) 
 ```
 
-<span class="acidinline">The above code using a base R approach to clustering.  Two features are drawn from a normal distribution, creating three clusters with some noise.  The observations are each labelled from 1 to 45</span>
-:::
+- The above code using a base R approach to clustering. Two features are drawn from a normal distribution, creating three clusters with some noise. The observations are each labelled from 1 to 45
 
-::: {.panel}
-[hierarchical agglomerate clustering]{.panel-name}
+## hierarchical agglomerate clustering
 
 ```{r simulate three seperate clusters}
 hClustering <- dat %>% 
@@ -236,16 +293,16 @@ hClustering <- dat %>%
   hclust(method = 'single') #<<
 ```
 
-<span class="acidinline">the function `hclust()` takes a distance matrix `dist` (default is euclidean distance) from the tibble `dat` and then derives a linkage matrix using a single-linkage criterion.
+- the function `hclust()` takes a distance matrix `dist` (default is euclidean distance) from the tibble `dat` and then
+derives a linkage matrix using a single-linkage criterion.
 
-- Initially, each observation is assigned to its own cluster and then the algorithm proceeds iteratively, at each stage joining the two most similar clusters, continuing until there is just a single cluster. At each stage distances between clusters are recomputed by the Lance–Williams dissimilarity update formula according to the particular clustering method being used. `?hclust()` for more details</span>
-:::
+-   Initially, each observation is assigned to its own cluster and then the algorithm proceeds iteratively, at each stage joining the two most similar clusters, continuing until there is just a single cluster. 
+- At each stage distances between clusters are recomputed by the Lance–Williams dissimilarity update formula according to the particular clustering method being used. `?hclust()` for more
 
-::: {.panel}
-[Dendrogram output]{.panel-name}
 
-:::: {.columns}
+## Dendrogram output
 
+::: columns
 ::: {.column width="50%"}
 ```{r}
 ggdendrogram(hClustering)
@@ -253,73 +310,92 @@ ggdendrogram(hClustering)
 :::
 
 ::: {.column width="50%"}
-<span class="blockquote">
-- By restricting the growth of a hierarchical tree, we can derive a partitional clustering from any hierarchical clustering. 
-- However, one cannot generally derive a hierarchical clustering from a partitional one.
-</span>
+[ - By restricting the growth of a hierarchical tree, we can derive a
+partitional clustering from any hierarchical clustering. - However, one
+cannot generally derive a hierarchical clustering from a partitional
+one. ]{.blockquote}
+:::
 :::
 
-::::
-
 :::
-
-::::
 
 ## Types of clustering {.small}
 
-- Depending on the definition of cluster, we can distinguish several types of clustering algorithms, including the following:
+-   Depending on the definition of cluster, we can distinguish several
+    types of clustering algorithms, including the following:
 
-1. <span class="saltinline">Connectivity:</span> This clustering is based on distance connectivity, like hierarchical clustering. Finance example = @Prado2016.
-2. <span class="saltinline">Centroids:</span> These algorithms perform a vector quantization, like k-means, Finance example = @Prado2018.
-3. <span class="saltinline">Distribution:</span> Clusters are formed using statistical distributions
-4. <span class="saltinline">Density:</span> These algorithms search for connected dense regions in the data space. Examples include [DBSCAN and OPTICS](https://cran.r-project.org/web/packages/dbscan/vignettes/dbscan.pdf).
-5. <span class="saltinline">Subspace:</span> Clusters are modeled on two dimensions, features and observations. An example is biclustering/coclustering. For instance, they can help identify similarities in subsets of instruments and time periods
+1.  [Connectivity:]{.saltinline} This clustering is based on distance
+    connectivity, like hierarchical clustering. Finance example =
+    @Prado2016.
+2.  [Centroids:]{.saltinline} These algorithms perform a vector
+    quantization, like k-means, Finance example = @Prado2018.
+3.  [Distribution:]{.saltinline} Clusters are formed using statistical
+    distributions
+4.  [Density:]{.saltinline} These algorithms search for connected dense
+    regions in the data space. Examples include [DBSCAN and
+    OPTICS](https://cran.r-project.org/web/packages/dbscan/vignettes/dbscan.pdf).
+5.  [Subspace:]{.saltinline} Clusters are modeled on two dimensions,
+    features and observations. An example is biclustering/coclustering.
+    For instance, they can help identify similarities in subsets of
+    instruments and time periods
 
 ## Cluster algorithm inputs
 
-- Some algorithms expect as input a measure of similarity, and other algorithms expect as input a measure of dissimilarity. 
-- It is important to make sure that you pass the right input to a particular algorithm. 
-- For instance, a hierarchical clustering algorithm typically expects distance as an input, and it will cluster together items within a neighborhood. 
-- Centroids, distribution and density methods expect vector-space coordinates, and they can handle distances directly. 
-- However, biclustering directly on the distance matrix will cluster together the most distant elements (the opposite of what say k-means would do). One solution is to bicluster on the reciprocal of distance.
+-   Some algorithms expect as input a measure of similarity, and other
+    algorithms expect as input a measure of dissimilarity.
+-   It is important to make sure that you pass the right input to a
+    particular algorithm.
+-   For instance, a hierarchical clustering algorithm typically expects
+    distance as an input, and it will cluster together items within a
+    neighborhood.
+-   Centroids, distribution and density methods expect vector-space
+    coordinates, and they can handle distances directly.
+-   However, biclustering directly on the distance matrix will cluster
+    together the most distant elements (the opposite of what say k-means
+    would do). One solution is to bicluster on the reciprocal of
+    distance.
 
 ## Curse of dimensionality
 
-<span class="blockquote">
-- If the number of features greatly exceeds the number of observations, the curse of dimensionality can make the clustering problematic: most of the space spanning the observations will be empty, making it difficult to identify any groupings. 
+- If the number of features greatly exceeds the number of
+observations, the curse of dimensionality can make the clustering problematic: most of the space spanning the observations will be empty, making it difficult to identify any groupings. 
 - One solution is to project the data matrix X onto a low-dimensional space, similar to how PCA reduces the number of features (Steinbach, 2004, Ding, 2004). 
 - An alternative solution is to project the proximity matrix onto a low-dimensional space, and use it as a new X matrix. 
 - In both cases, denoising and detoning can help identify the number of dimensions associated with signal.
-</span>
 
 ## Number of clusters
 
-- Partitioning algorithms find the composition of unnested clusters, where the researcher is responsible for providing the correct number of clusters. 
-- In practice, researchers often do not know in advance what the number of clusters should be. 
-- The "elbow method" is a popular technique that stops adding clusters when <span class="red">the marginal percentage of variance explained does not exceed a predefined threshold.</span>
-- In this context, the percentage of variance explained is defined as the ratio of the between-group variance to the total variance (an F-test). 
-- One caveat of this approach is that the threshold is often set arbitrarily. (Goutte et al. 1999).
+-   Partitioning algorithms find the composition of unnested clusters, where the researcher is responsible for providing the correct numberof clusters.
+-   In practice, researchers often do not know in advance what the number of clusters should be.
+-   The "elbow method" is a popular technique that stops adding clusters when the marginal percentage of variance explained does not exceed a predefined threshold
+-   In this context, the percentage of variance explained is defined as the ratio of the between-group variance to the total variance (an F-test).
+-   One caveat of this approach is that the threshold is often set arbitrarily. (Goutte et al. 1999).
 
 ## Optimal Number of Clusters (ONC)
 
-- Lopez de Prado (2020) presents the .heat[ONC] algorithm, which recovers the number of clusters from a shuffled block-diagonal correlation matrix. 
+-   Lopez de Prado (2020) presents the ONC algorithm, which
+    recovers the number of clusters from a shuffled block-diagonal correlation matrix.
 
-- ONC belongs to the broader class of algorithms that apply the [silhouette method](https://www.rdocumentation.org/packages/cluster/versions/2.1.0/topics/silhouette). 
+-   ONC belongs to the broader class of algorithms that apply these[Silhouette method](https://www.rdocumentation.org/packages/cluster/versions/2.1.0/topics/silhouette).
 
-- Although we typically focus on finding the number of clusters within a correlation matrix, this algorithm can be applied to any generic observation matrix.
-
+-   Although we typically focus on finding the number of clusters withina correlation matrix, this algorithm can be applied to any generic observation matrix.
 
 ## Cluster scoring {.small}
 
-- In order to determine the optimal number of clusters, we first need to define a function that scores the output of a scoring algorithm
-- In general, there are two types of clustering scoring functions:
-1. External: those that require ground-truth labels
-2. Internal: those that don’t require it
-- Because clustering is an unsupervised learning problem, internal scores are more natural. Three of the most used internal scoring functions are:
-1. Calinski-Harabasz index (or variance ratio) **direct method**
-2. Gap statistics **Statistical method**
-2. Silhouette scores **direct method**
+-   In order to determine the optimal number of clusters, we first need
+    to define a function that scores the output of a scoring algorithm
+-   In general, there are two types of clustering scoring functions:
 
+1.  External: those that require ground-truth labels
+2.  Internal: those that don’t require it
+
+-   Because clustering is an unsupervised learning problem, internal
+    scores are more natural. Three of the most used internal scoring
+    functions are:
+
+1.  Calinski-Harabasz index (or variance ratio) **direct method**
+2.  Gap statistics **Statistical method**
+3.  Silhouette scores **direct method**
 
 ## How many blobs are there? {.small}
 
@@ -329,47 +405,55 @@ ggdendrogram(hClustering)
 f2c3<-monte(seed = 123,nvar = 2,nclus = 3,clus.size = c(1000,1000,1000),eta2 = c(0.9,0.9))[['data']] %>% as.tibble()
 f2c3 %>% ggplot(aes(x=V2,y=V3)) + geom_point(colour='pink')
 ```
-- On 2-D, this is an easy question for a human.
+
+-   On 2-D, this is an easy question for a human.
 :::
+
 ::: colunn
-<iframe src="img/3D_clusters.html" width="100%" height="400" id="igraph" scrolling="no" seamless="seamless" frameBorder="0"> </iframe>
+<iframe src="img/3D_clusters.html" width="100%" height="400" id="igraph" scrolling="no" seamless="seamless" frameBorder="0">
 
-- <span class="fatline">On higher dimensions, machines are more likely to win</span>
+</iframe>
 
+-   [On higher dimensions, machines are more likely to win]{.fatline}
 :::
 :::
 
 ## Calinski-Harabasz index (or variance ratio) {.small}
 
-- The Calinski-Harabasz index of a clustering is the ratio of the between-cluster variance
-(which is essentially the variance of all the cluster centroids from the dataset’s grand
-centroid) to the total within-cluster variance (basically, the average WSS of the clusters
-in the clustering). 
-- For a given dataset, the total sum of squares (TSS) is the squared distance of all the data points from the dataset’s centroid. 
-- The TSS is independent of the clustering. 
-- If WSS(k) is the total WSS of a clustering with k clusters, then the between sum of squares BSS(k) of the clustering is given by BSS(k) = TSS - WSS(k). 
-- WSS(k) measures how close the points in a cluster are to each other. 
-
+-   The Calinski-Harabasz index of a clustering is the ratio of the
+    between-cluster variance (which is essentially the variance of all
+    the cluster centroids from the dataset’s grand centroid) to the
+    total within-cluster variance (basically, the average WSS of the
+    clusters in the clustering).
+-   For a given dataset, the total sum of squares (TSS) is the squared
+    distance of all the data points from the dataset’s centroid.
+-   The TSS is independent of the clustering.
+-   If WSS(k) is the total WSS of a clustering with k clusters, then the
+    between sum of squares BSS(k) of the clustering is given by BSS(k) =
+    TSS - WSS(k).
+-   WSS(k) measures how close the points in a cluster are to each other.
 
 ## Calinski-Harabasz index (or variance ratio) {.small}
 
-- BSS(k) measures how far apart the clusters are from each other. 
-- A good clustering has a small WSS(k) and a large BSS(k).
-- The within-cluster variance W is given by WSS(k)/(n-k), where n is the number of
-points in the dataset. 
-- The between-cluster variance B is given by BSS(k)/(k-1). 
-- The within-cluster variance will decrease as k increases; the rate of decrease should slow
-down past the optimal k. 
-- The between-cluster variance will increase as k, but the rate
-of increase should slow down past the optimal k. 
-- So in theory, the ratio of B to W should be maximized at the optimal k.
-
-
+-   BSS(k) measures how far apart the clusters are from each other.
+-   A good clustering has a small WSS(k) and a large BSS(k).
+-   The within-cluster variance W is given by WSS(k)/(n-k), where n is
+    the number of points in the dataset.
+-   The between-cluster variance B is given by BSS(k)/(k-1).
+-   The within-cluster variance will decrease as k increases; the rate
+    of decrease should slow down past the optimal k.
+-   The between-cluster variance will increase as k, but the rate of
+    increase should slow down past the optimal k.
+-   So in theory, the ratio of B to W should be maximized at the optimal
+    k.
 
 ## Gap statistic
 
 ::: callout-important
-The gap statistic is an attempt to automate the “elbow finding” on the WSS curve. It works best when thedata comes from a mix of populations that all have approximately Gaussian distributions (a mixture of Gaussian). - @Tibshirani2001
+The gap statistic is an attempt to automate the “elbow finding” on the
+WSS curve. It works best when thedata comes from a mix of populations
+that all have approximately Gaussian distributions (a mixture of
+Gaussian). - @Tibshirani2001
 :::
 
 ## Silhouette {.class}
@@ -377,20 +461,22 @@ The gap statistic is an attempt to automate the “elbow finding” on the WSS c
 Silhouette scores are defined for each sample as:
 $$s_n=(b_n-a_n)/max\{a_n,b_n\}$$
 
-* where
-* $a_n$ mean distance between object n and other objects in its cluster
-* $b_n$ mean distance between object n and objects in the nearest cluster
+-   where
+-   $a_n$ mean distance between object n and other objects in its
+    cluster
+-   $b_n$ mean distance between object n and objects in the nearest
+    cluster
 
-::: {.blockquote}
-####Advantages:
-* The scores are bounded [-1,1]
-* Because we have one score per sample, we can reallocate specific
-objects to better clusters
-* Clusters with average $s_n \approx 0$ are overlapping, and could be merged
-* We can use $s_n$ to derive a distribution of scores, and make inference (p-values). For example, we can compute the t-value, $s=E[s_n]/\sqrt{V[s_n]}$
+::: blockquote
+####Advantages: \* The scores are bounded \[-1,1\] \* Because we have
+one score per sample, we can reallocate specific objects to better
+clusters \* Clusters with average $s_n \approx 0$ are overlapping, and
+could be merged \* We can use $s_n$ to derive a distribution of scores,
+and make inference (p-values). For example, we can compute the t-value,
+$s=E[s_n]/\sqrt{V[s_n]}$
 :::
 
-# Example of cluster scoring
+# Examples of cluster scoring
 
 ## Elbow method
 
@@ -416,36 +502,46 @@ fviz_nbclust(f3c3, kmeans, method = "silhouette")
 ```
 
 ## Inference
-- Interestingly, both the gap-statistic and the elbow method (which uses the denominator of the CHI) suggest a optimal cluster number of 3, while the silhouette method suggests 2.
-- 2 is not an unreasonable choice as there was some overlap in the three clusters three features  sample
 
+-   Interestingly, both the gap-statistic and the elbow method (which
+    uses the denominator of the CHI) suggest a optimal cluster number of
+    3, while the silhouette method suggests 2.
+-   2 is not an unreasonable choice as there was some overlap in the
+    three clusters three features sample
 
 ## Use case: Factor Investing/Relative Value Strategies {.small}
 
-- Factor investing attempts to price assets that share some common characteristics
-- Traditionally, economists group assets according to a single characteristic
-- E.g.: value, size, momentum, quality, liquidity, carry, etc.
-- This misses known interaction effects, such as value vs. momentum, and hierarchical dependencies
-- A natural solution is to cluster assets on multiple characteristics (features), and let the algorithm find the optimal number of clusters
-- We can then evaluate the performance of each cluster, and assess whether the risk-premium is statistically significant
-- This approach is also useful for relative value strategies
+-   Factor investing attempts to price assets that share some common
+    characteristics
+-   Traditionally, economists group assets according to a single
+    characteristic
+-   E.g.: value, size, momentum, quality, liquidity, carry, etc.
+-   This misses known interaction effects, such as value vs. momentum,
+    and hierarchical dependencies
+-   A natural solution is to cluster assets on multiple characteristics
+    (features), and let the algorithm find the optimal number of
+    clusters
+-   We can then evaluate the performance of each cluster, and assess
+    whether the risk-premium is statistically significant
+-   This approach is also useful for relative value strategies
 
-
-## Exam type questions  {.small}
+## Exam type questions {.small}
 
 ### Clustering UK asset pricing factors
 
 ::: columns
 ::: column
-- [Source](https://reshare.ukdataservice.ac.uk/852704/1/dailyfactors.zip)
-- Load the UK asset pricing factors from the UK data service
-- The dataset contains 5 factors: market, size, value, momentum, and liquidity
+-   [Source](https://reshare.ukdataservice.ac.uk/852704/1/dailyfactors.zip)
+-   Load the UK asset pricing factors from the UK data service
+-   The dataset contains 5 factors: market, size, value, momentum, and
+    liquidity
+
 ```{r}
 factors<-fml::daily_factors %>% glimpse()
 ```
 :::
-::: column
 
+::: column
 ```{r, fig.width=4, fig.height=4}
 factors_scaled<-scale(factors[,-1]) %>% as.tibble()
 factors_scaled %>%
@@ -454,7 +550,7 @@ factors_scaled %>%
 :::
 :::
 
-## Exam type questions  {.small}
+## Exam type questions {.small}
 
 ### ONC using silhoutte method
 
@@ -463,63 +559,87 @@ factors_scaled %>% select(hml,umd)->f2
 fviz_nbclust(factors_scaled %>% select(hml,umd), kmeans, method = "silhouette")
 ```
 
-## Exam type questions  {.small}
+## Exam type questions {.small}
 
 ### kmean clustering results
+
 ```{r}
 kmeans(f2,centers=5)->kmobj
 factoextra::fviz_cluster(kmobj,data = f2) + labs(y='Momentum=Up minus Down', x="Value=High minus Low")
 ```
 
-## Exam type questions  {.small}
-### Inference
-- Unlike the traditional econometric interpretation the clustering has found a fifth cluster.
-- *The two asset pricing risk factors each have two components so finding at least four clusters is not surprising*
-- This fifth cluster is a combination of the four components that make up the other factors. 
-- To set an relative value strategy, the quantitative analyst could design an algorithm to identity this cluster and assess whether their is significant risk premium in investment.
+## Exam type questions {.small}
 
+### Inference
+
+-   Unlike the traditional econometric interpretation the clustering has
+    found a fifth cluster.
+-   *The two asset pricing risk factors each have two components so
+    finding at least four clusters is not surprising*
+-   This fifth cluster is a combination of the four components that make
+    up the other factors.
+-   To set an relative value strategy, the quantitative analyst could
+    design an algorithm to identity this cluster and assess whether
+    their is significant risk premium in investment.
 
 ## Input to clustering: Observations matrix $X$ {.small}
 
-- In FML it is not advising to simple pass the raw observation matrix to a cluster algorithm.
-- Some treated version of the raw data is used as the input (For example the information-theoretic treats in the last lecture)
-- Most finance problems involve a correlation matrix which we will focus on.
-- Assume that we .bold[observe] N variables that follow a multivariate Normal distribution characterized by a correlation matrix $\rho$ where $\rho_{i,j}$ is the correlation between variables i and j. 
-- If a strong common component is present, it is advisable to remove it by applying the detoning, because a factor exposure shared by all variables may hide the existence of partly shared exposures.
+-   In FML it is not advising to simple pass the raw observation matrix
+    to a cluster algorithm.
+-   Some treated version of the raw data is used as the input (For
+    example the information-theoretic treats in the last lecture)
+-   Most finance problems involve a correlation matrix which we will
+    focus on.
+-   Assume that we .bold\[observe\] N variables that follow a
+    multivariate Normal distribution characterized by a correlation
+    matrix $\rho$ where $\rho_{i,j}$ is the correlation between
+    variables i and j.
+-   If a strong common component is present, it is advisable to remove
+    it by applying the detoning, because a factor exposure shared by all
+    variables may hide the existence of partly shared exposures.
 
+## Correlation clustering {.small}
 
-# Correlation clustering {.small}
+- Correlation clustering can follow three approaches:
 
-- <span class="heatinline">Correlation clustering can follow three approaches</span>
+1.  Circumvent the $X$ matrix, by directly defining the distance metrics
+    as $d_{\rho}$ or $d_{|\rho|}$ from last lecture.
+2.  Use the correlation matrix as $X$
+3.  Derive the $X$ matrix or a similar transformation
+    $X_{i,j}=\sqrt{1/2\left(1- \rho_{i,j}\right)}$ (the distance of
+    distances approach).
 
-1. Circumvent the $X$ matrix, by directly defining the distance metrics as $d_{\rho}$ or $d_{|\rho|}$ from last lecture.
-2. Use the correlation matrix as $X$
-3. Derive the $X$ matrix or a similar transformation $X_{i,j}=\sqrt{1/2\left(1- \rho_{i,j}\right)}$ (the distance of distances approach). 
-
-::: {.blockquote}
-- The advantage of options 2 and 3 is that the distance between two variables will be a function of multiple correlation estimates, and not only one, which makes the analysis more robust to the presence of outliers. 
-- A further advantage of 3 is that it acknowledges that a change from correlation from 0.9 to 1.0 is greater than a change from 0.1 to 0:2. 
-- @Lopez2020 recommends approach 3
+::: blockquote
+-   The advantage of options 2 and 3 is that the distance between two
+    variables will be a function of multiple correlation estimates, and
+    not only one, which makes the analysis more robust to the presence
+    of outliers.
+-   A further advantage of 3 is that it acknowledges that a change from
+    correlation from 0.9 to 1.0 is greater than a change from 0.1 to
+    0:2.
+-   @Lopez2020 recommends approach 3
 :::
 
 ## Distance of distances clustering algorithm {.small}
 
-- The clustering of correlation matrices is peculiar in the sense that the features
-match the observations: we try to group observations where the observations themselves are the features (hence the symmetry of X). 
+-   The clustering of correlation matrices is peculiar in the sense that
+    the features match the observations: we try to group observations
+    where the observations themselves are the features (hence the
+    symmetry of X).
 
-- Matrix X appears to be a distance matrix, but it is not. It is still an observations matrix, on which distances can be evaluated.
+-   Matrix X appears to be a distance matrix, but it is not. It is still
+    an observations matrix, on which distances can be evaluated.
 
-- For large matrices X, generally it is good practice to reduce its dimension via
-PCA. 
-- The idea is to replace X with its standardized orthogonal projection onto a
-lower-dimensional space, where the number of dimensions is given by the number
-of eigenvalues in X’s correlation matrix that exceed $\lambda_{+}$ 
+-   For large matrices X, generally it is good practice to reduce its
+    dimension via PCA.
 
+-   The idea is to replace X with its standardized orthogonal projection
+    onto a lower-dimensional space, where the number of dimensions is
+    given by the number of eigenvalues in X’s correlation matrix that
+    exceed $\lambda_{+}$
 
 ## Useful resources
 
-- [`cluster`](https://www.rdocumentation.org/packages/cluster)
-
+-   [`cluster`](https://www.rdocumentation.org/packages/cluster)
 
 ## References
-
