@@ -2,8 +2,8 @@
 title: "Clustering in Finance"
 subtitle: "A primer on partitional and hierarchical clustering algorithms, with applications to financial datasets"
 author: "Barry Quinn <br> Digital Dave"
-date: today
 embed-resources: true
+footer: "AI and Trading"
 format:
   revealjs:
     include-in-header:
